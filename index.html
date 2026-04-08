@@ -1,0 +1,638 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile Service Center CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar hidden">
+    <h1 id="appTitle">Mobile Service Center CRM</h1>
+    <p id="appSubtitle">Admin controlled CRM for Reception and Engineer workflow.</p>
+  </header>
+
+  <main class="container">
+    <section class="panel" id="loginPanel">
+      <h2>Login</h2>
+      <p id="loginCrmName" class="login-crm-name">Mobile Service Center CRM</p>
+      <form id="loginForm" class="inline-form">
+        <input name="username" placeholder="Username" required />
+        <input name="password" type="password" placeholder="Password" required />
+        <button type="submit">Login</button>
+        <button id="openForgotPasswordBtn" type="button" class="secondary">Forgot Password</button>
+      </form>
+    </section>
+
+    <section class="panel hidden" id="appPanel">
+      <div class="nav-head">
+        <div class="nav-brand">
+          <span>Service CRM</span>
+          <small>Operations Panel</small>
+        </div>
+        <div class="nav-user">
+          <small>Logged In</small>
+          <strong id="welcomeText"></strong>
+        </div>
+        <button id="openProfileBtn" type="button" class="secondary">Profile</button>
+      </div>
+      <div class="tab-group nav-tabs" id="pageTabs">
+        <button class="tab active" data-page="dashboard">Dashboard</button>
+        <button class="tab" data-page="register" data-role="receptionist,admin">Register</button>
+        <button class="tab" data-page="jobsheets" data-role="receptionist,engineer,admin">Job Sheets</button>
+        <button class="tab" data-page="pricelist" data-role="receptionist,engineer,admin">Price List</button>
+        <button class="tab" data-page="attendance" data-role="receptionist,engineer,admin">Attendance</button>
+        <button class="tab" data-page="ledger" data-role="receptionist,engineer,admin">Cash Ledger</button>
+        <button class="tab" data-page="accounts" data-role="receptionist,admin">Accounts</button>
+        <button class="tab" data-page="masters" data-role="admin">Admin Masters</button>
+        <button class="tab" data-page="users" data-role="admin">User Control</button>
+      </div>
+    </section>
+
+    <section id="workspace" class="workspace">
+    <section class="hidden" id="kpiCards">
+      <div class="cards kpi-grid">
+        <div class="card kpi-click" data-open-page="jobsheets"><h3>Total Jobs</h3><strong id="kpiTotalJobs">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-status="!closed"><h3>Open Jobs</h3><strong id="kpiOpenJobs">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-warranty="IW"><h3>Total IW</h3><strong id="kpiIw">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-warranty="OOW"><h3>Total OOW</h3><strong id="kpiOow">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-warranty="DOA"><h3>Total DOA</h3><strong id="kpiDoa">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-warranty="Refurbish"><h3>Total Refurbish</h3><strong id="kpiRefurbish">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-warranty="Repacking"><h3>Total Repacking</h3><strong id="kpiRepacking">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-status="Ready Pickup"><h3>Ready Pickup</h3><strong id="kpiReady">0</strong></div>
+        <div class="card kpi-click" data-open-page="jobsheets" data-open-status="Delivered"><h3>Delivered</h3><strong id="kpiDelivered">0</strong></div>
+      </div>
+    </section>
+
+    <section class="panel page active hidden" id="page-dashboard">
+      <h2 id="dashboardHeading">Status Boards</h2>
+      <div id="statusBoards" class="status-boards"></div>
+    </section>
+
+    <section class="panel page hidden" id="page-register">
+      <h2 id="receptionHeading">Reception Job Registration</h2>
+      <form id="jobForm" class="grid-form">
+        <input id="jobNumber" disabled />
+        <input id="jobDate" disabled />
+        <input id="jobTime" disabled />
+        <select name="customerType" id="customerType" required></select>
+        <input name="name" placeholder="Name" required />
+        <input name="address" placeholder="Address" required />
+        <input name="contactNumber" placeholder="Contact Number (10 digit)" pattern="\d{10}" maxlength="10" required />
+        <div id="duplicateHint" class="duplicate-hint hidden"></div>
+        <aside id="duplicateSidePanel" class="duplicate-side hidden">
+          <div class="duplicate-side-head">
+            <strong>Previous Jobs</strong>
+            <button id="closeDuplicatePanel" type="button" class="secondary action-btn">Close</button>
+          </div>
+          <div id="duplicateSideList" class="duplicate-side-list"></div>
+        </aside>
+        <input name="altNumber" placeholder="Alternative Number (10 digit)" pattern="\d{10}" maxlength="10" />
+        <input name="email" placeholder="Mail ID (optional)" type="email" />
+        <select name="warrantyCategory" id="warrantyCategory" required></select>
+        <select name="brand" id="brand" required></select>
+        <input name="model" placeholder="Model" required />
+        <input name="imei" placeholder="IMEI / SN" required />
+        <select name="productCondition" id="productCondition" required></select>
+        <textarea name="complaint" placeholder="Complaint" required></textarea>
+        <input name="advanceAmount" id="advanceAmount" type="number" min="0" step="0.01" placeholder="Advance Amount" disabled />
+        <input name="totalAmount" id="totalAmount" type="number" min="0" step="0.01" placeholder="Total Amount" disabled />
+        <select name="invoiceMode" id="invoiceMode" disabled>
+          <option value="">Invoice Mode</option>
+        </select>
+        <input name="attachments" id="attachments" type="file" multiple />
+        <button type="submit">Save Job</button>
+      </form>
+    </section>
+
+    <section class="panel page hidden" id="page-engineer">
+      <div class="toolbar">
+        <h2 id="engineerHeading">Engineer Desk</h2>
+        <button id="engineerBackBtn" type="button" class="secondary">Back To Job List</button>
+      </div>
+
+      <div id="engineerJobMeta"></div>
+
+      <form id="engineerUpdateForm" class="grid-form">
+        <input name="custName" id="engCustName" placeholder="Customer Name" />
+        <input name="custAddress" id="engCustAddress" placeholder="Address" />
+        <input name="custContact" id="engCustContact" placeholder="Contact Number" maxlength="10" />
+        <input name="custAlt" id="engCustAlt" placeholder="Alternative Number" maxlength="10" />
+        <input name="custEmail" id="engCustEmail" placeholder="Email" />
+        <input name="custModel" id="engCustModel" placeholder="Model" />
+        <input name="custImei" id="engCustImei" placeholder="IMEI/SN" />
+        <textarea name="custComplaint" id="engCustComplaint" placeholder="Complaint"></textarea>
+        <select name="engineerName" id="engineerName" required></select>
+        <select name="repairStatus" id="repairStatus" required></select>
+        <select name="engineerWarranty" id="engineerWarranty" required></select>
+        <input name="serviceCharge" id="serviceCharge" type="number" min="0" step="0.01" placeholder="Service Charge (Before GST)" />
+        <input name="discountAmount" id="discountAmount" type="number" min="0" step="0.01" placeholder="Discount Amount" />
+        <input name="autoCollectionAmount" id="autoCollectionAmount" type="number" min="0" step="0.01" placeholder="Auto Collection Amount (OOW)" disabled />
+        <select name="closeCollectionMode" id="closeCollectionMode">
+          <option value="">Collection Mode</option>
+          <option>Cash</option>
+          <option>UPI</option>
+          <option>Card</option>
+          <option>Bank</option>
+        </select>
+        <textarea name="handoverRemark" id="handoverRemark" placeholder="Handover Remark (Reception)"></textarea>
+        <textarea name="remark" placeholder="Remark"></textarea>
+        <input id="partSearch" placeholder="Search part and click Add Part" list="partsDatalist" />
+        <div id="partSuggestionBox" class="part-suggestion-box hidden"></div>
+        <input id="partQtyInput" type="number" min="1" step="1" value="1" placeholder="Qty" />
+        <datalist id="partsDatalist"></datalist>
+        <button id="addPartBtn" type="button" class="action-btn">Add Part</button>
+        <div id="selectedParts" class="chip-wrap"></div>
+        <input id="engineerPhotos" type="file" accept="image/*" multiple />
+        <input id="engineerZip" type="file" accept=".zip" multiple />
+        <button id="printEstimateBtn" type="button" class="action-btn">Print Estimate Invoice</button>
+        <button type="submit" class="action-btn">Save Engineer Update</button>
+      </form>
+      <div class="inline-form">
+        <button id="openTimelineBtn" type="button" class="secondary action-btn">View Timeline</button>
+        <button id="openEngineerLogBtn" type="button" class="secondary action-btn">View Engineer Log</button>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-jobsheets">
+      <h2 id="jobsheetHeading">Job Sheets</h2>
+      <div class="inline-form jobsheet-tools">
+        <input id="jobSearch" placeholder="Search by job no, name, number, imei, model" />
+        <input id="jobDateFrom" type="date" />
+        <input id="jobDateTo" type="date" />
+        <select id="jobStatusFilter">
+          <option value="">All Status</option>
+        </select>
+        <button id="applyFilterBtn" type="button">Apply Filter</button>
+        <button id="clearFilterBtn" type="button" class="secondary">Clear</button>
+        <button id="exportJobsBtn" type="button">Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Job No</th>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Contact</th>
+              <th>Device</th>
+              <th>Warranty</th>
+              <th>Status</th>
+              <th>Engineer</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="jobsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-pricelist">
+      <h2>Price List</h2>
+      <div class="inline-form">
+        <input id="priceSearch" placeholder="Search by part, code, brand, model" />
+        <button id="priceApplyBtn" type="button">Search</button>
+        <button id="priceClearBtn" type="button" class="secondary">Clear</button>
+        <button id="priceExportBtn" type="button">Export CSV</button>
+      </div>
+      <form id="priceAddForm" class="inline-form">
+        <input name="itemCode" placeholder="Part Code" />
+        <input name="partName" placeholder="Part Name" required />
+        <input name="brand" placeholder="Brand" />
+        <input name="model" placeholder="Model" />
+        <input name="price" type="number" min="0" step="0.01" placeholder="Price" required />
+        <button type="submit">Add / Update</button>
+      </form>
+      <form id="priceImportForm" class="inline-form">
+        <input id="priceImportFile" type="file" accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+        <button type="submit">Upload Excel</button>
+        <button id="downloadPriceTemplate" type="button" class="secondary">Download Template</button>
+      </form>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Part Code</th>
+              <th>Part Name</th>
+              <th>Brand</th>
+              <th>Model</th>
+              <th>Price</th>
+              <th>Updated</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="priceBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-attendance">
+      <h2 id="attendanceHeading">Staff Attendance</h2>
+      <div class="inline-form">
+        <select id="attendanceStaffFilter">
+          <option value="">All Staff</option>
+        </select>
+        <select id="attendancePeriod">
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input id="attendanceMonth" type="month" />
+        <input id="attendanceYear" type="number" min="2000" max="2100" />
+        <input id="attendanceFrom" type="date" class="hidden" />
+        <input id="attendanceTo" type="date" class="hidden" />
+        <input id="attendanceSearch" placeholder="Search staff or note" />
+        <button id="attendanceApplyBtn" type="button">Apply</button>
+        <button id="attendanceClearBtn" type="button" class="secondary">Clear</button>
+        <button id="attendanceExportBtn" type="button">Export CSV</button>
+      </div>
+
+      <div class="inline-form">
+        <button id="attendanceCheckInBtn" type="button">Check In</button>
+        <button id="attendanceCheckOutBtn" type="button" class="secondary">Check Out</button>
+        <input id="attendanceActionRemark" placeholder="Remark (required for late/out-of-time check-in/out)" />
+        <span id="attendanceTodayText"></span>
+      </div>
+
+      <form id="attendancePolicyForm" class="inline-form hidden">
+        <input type="time" name="checkInStart" title="Check-In Start" />
+        <input type="time" name="checkInEnd" title="Check-In End" />
+        <input type="time" name="checkOutStart" title="Check-Out Start" />
+        <input type="time" name="checkOutEnd" title="Check-Out End" />
+        <button type="submit">Save Attendance Time Policy</button>
+      </form>
+      <div id="attendanceRulesText" class="attendance-rules"></div>
+
+      <form id="attendanceAdminForm" class="inline-form">
+        <select id="attendanceAdminUser" name="userId"></select>
+        <input type="date" name="date" required />
+        <input type="time" name="checkIn" />
+        <input type="time" name="checkOut" />
+        <select name="status">
+          <option value="Present">Present</option>
+          <option value="Half Day">Half Day</option>
+          <option value="Absent">Absent</option>
+          <option value="Leave">Leave</option>
+        </select>
+        <input name="note" placeholder="Note" />
+        <button type="submit">Save Attendance</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Staff</th>
+              <th>Role</th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Worked</th>
+              <th>Status</th>
+              <th>Note</th>
+              <th>Updated By</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceBody"></tbody>
+        </table>
+      </div>
+
+      <h3 id="attendanceRequestTitle" class="attendance-request-title">Attendance Requests (Admin Approval)</h3>
+      <div class="table-wrap" id="attendanceRequestWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Requested At</th>
+              <th>Date</th>
+              <th>Staff</th>
+              <th>Action</th>
+              <th>Time</th>
+              <th>Remark</th>
+              <th>Status</th>
+              <th>Admin Remark</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="attendanceRequestBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-ledger">
+      <h2>Cash Ledger</h2>
+      <div class="cards ledger-cards">
+        <div class="card"><h3>Total In</h3><strong id="ledgerTotalIn">INR 0</strong></div>
+        <div class="card"><h3>Total Out</h3><strong id="ledgerTotalOut">INR 0</strong></div>
+        <div class="card"><h3>Balance</h3><strong id="ledgerBalance">INR 0</strong></div>
+      </div>
+      <div class="inline-form">
+        <select id="ledgerPeriod">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input id="ledgerAnchorDate" type="date" />
+        <input id="ledgerFromDate" type="date" class="hidden" />
+        <input id="ledgerToDate" type="date" class="hidden" />
+        <input id="ledgerSearch" placeholder="Search by note, job no, user" />
+        <button id="ledgerApplyBtn" type="button">Apply</button>
+        <button id="ledgerClearBtn" type="button" class="secondary">Clear</button>
+        <button id="ledgerExportBtn" type="button">Export CSV</button>
+      </div>
+      <form id="ledgerExpenseForm" class="inline-form">
+        <input name="amount" type="number" min="0" step="0.01" placeholder="Expense Amount" required />
+        <select name="mode">
+          <option>Cash</option>
+          <option>UPI</option>
+          <option>Card</option>
+          <option>Bank</option>
+        </select>
+        <input name="note" placeholder="Expense Note" />
+        <button type="submit">Add Expense</button>
+      </form>
+      <form id="ledgerAdminCashForm" class="inline-form">
+        <select name="type">
+          <option value="IN">Admin Cash Add</option>
+          <option value="OUT">Admin Cash Take</option>
+        </select>
+        <input name="amount" type="number" min="0" step="0.01" placeholder="Amount" required />
+        <select name="mode">
+          <option>Cash</option>
+          <option>UPI</option>
+          <option>Card</option>
+          <option>Bank</option>
+        </select>
+        <input name="note" placeholder="Admin Note" />
+        <button type="submit">Add Admin Entry</button>
+      </form>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Category</th>
+              <th>Amount</th>
+              <th>Mode</th>
+              <th>Job No</th>
+              <th>Note</th>
+              <th>By</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-accounts">
+      <h2>Accounts</h2>
+      <div class="inline-form">
+        <input id="accountsSearch" placeholder="Search job no, name, number" />
+        <input id="accountsFrom" type="date" />
+        <input id="accountsTo" type="date" />
+        <button id="accountsApply" type="button">Apply Filter</button>
+        <button id="accountsClear" type="button" class="secondary">Clear</button>
+        <button id="accountsExportBtn" type="button">Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Job No</th>
+              <th>Name</th>
+              <th>Advance</th>
+              <th>Discount</th>
+              <th>Net Bill</th>
+              <th>Collected</th>
+              <th>Mode</th>
+              <th>Collected By</th>
+            </tr>
+          </thead>
+          <tbody id="accountsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-masters">
+      <h2 id="mastersHeading">Admin Masters</h2>
+      <details class="master-drop flat-open" open>
+        <summary>Invoice Pattern</summary>
+        <form id="invoicePatternForm" class="inline-form">
+          <input id="invoicePattern" placeholder="Pattern like JOB-{YYYY}-{####}" />
+          <button type="submit">Save Invoice Pattern</button>
+        </form>
+        <p><small>Tokens: {YYYY} {MM} {DD} {####}</small></p>
+      </details>
+
+      <details class="master-drop flat-open" open>
+        <summary>CRM Headings</summary>
+        <form id="headingForm" class="grid-form">
+          <input name="appTitle" placeholder="App Title" />
+          <input name="loginCrmName" placeholder="Login Page CRM Name" />
+          <input name="appSubtitle" placeholder="App Subtitle" />
+          <input name="dashboardHeading" placeholder="Dashboard Heading" />
+          <input name="receptionHeading" placeholder="Reception Heading" />
+          <input name="engineerHeading" placeholder="Engineer Heading" />
+          <input name="jobsheetHeading" placeholder="Jobsheet Heading" />
+          <input name="mastersHeading" placeholder="Masters Heading" />
+          <button type="submit">Save Headings</button>
+        </form>
+      </details>
+
+      <details class="master-drop flat-open" open>
+        <summary>Import Old Job Data</summary>
+        <form id="importJobsForm" class="inline-form">
+          <input id="importJobsFile" type="file" accept=".json,.csv,application/json,text/csv" />
+          <select id="importMode">
+            <option value="merge">Merge</option>
+            <option value="replace">Replace</option>
+          </select>
+          <button type="submit">Import</button>
+          <button id="downloadImportSample" type="button" class="secondary">Download Template</button>
+        </form>
+      </details>
+
+      <div class="masters-grid">
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Warranty Category</summary>
+          <form data-master="warrantyCategories" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-warrantyCategories"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Brand</summary>
+          <form data-master="brands" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-brands"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Product Condition</summary>
+          <form data-master="productConditions" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-productConditions"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Invoice Mode</summary>
+          <form data-master="invoiceModes" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-invoiceModes"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Customer Type</summary>
+          <form data-master="customerTypes" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-customerTypes"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Engineer Names</summary>
+          <form data-master="engineers" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-engineers"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Repair Status</summary>
+          <form data-master="repairStatuses" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-repairStatuses"></ul>
+        </details>
+        <details class="panel mini-panel master-drop flat-open" open>
+          <summary>Parts</summary>
+          <form data-master="parts" class="masterForm inline-form"><input name="value" placeholder="Add" required /><button>Add</button></form>
+          <ul id="master-parts"></ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="panel page hidden" id="page-users">
+      <h2>User Control (Admin)</h2>
+      <form id="userForm" class="inline-form">
+        <input name="fullName" placeholder="Full Name" required />
+        <input name="profileTitle" placeholder="Profile Title (e.g. Front Desk)" />
+        <input name="username" placeholder="Username" required />
+        <input name="password" placeholder="Password" required />
+        <input name="joiningDate" type="date" />
+        <input name="age" type="number" min="18" max="99" placeholder="Age" />
+        <select name="role" required>
+          <option value="receptionist">Receptionist</option>
+          <option value="engineer">Engineer</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button type="submit">Create User</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>Profile</th>
+              <th>Username</th>
+              <th>Joining</th>
+              <th>Age</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+    </section>
+  </main>
+
+  <dialog id="adminEditDialog">
+    <article>
+      <h3>Admin Edit Job</h3>
+      <form id="adminEditForm" class="grid-form">
+        <input name="name" placeholder="Name" required />
+        <select name="customerType" id="adminCustomerType"></select>
+        <input name="contactNumber" placeholder="Contact Number (10 digit)" pattern="\d{10}" maxlength="10" required />
+        <input name="altNumber" placeholder="Alternative Number (10 digit)" pattern="\d{10}" maxlength="10" />
+        <select name="warrantyCategory" id="adminWarranty"></select>
+        <input name="address" placeholder="Address" />
+        <input name="email" placeholder="Email" />
+        <input name="model" placeholder="Model" />
+        <input name="imei" placeholder="IMEI/SN" />
+        <button type="submit">Save Changes</button>
+      </form>
+      <button id="closeAdminEdit" type="button" class="secondary">Close</button>
+    </article>
+  </dialog>
+
+  <dialog id="profileDialog">
+    <article class="profile-card">
+      <div class="profile-head-row">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <div>
+          <h3 id="profileNameHeading">Staff Profile</h3>
+          <p id="profileSubline">User account details</p>
+        </div>
+      </div>
+      <div class="profile-grid">
+        <div><strong>Name:</strong> <span id="profileName">-</span></div>
+        <div><strong>Profile:</strong> <span id="profileTitle">-</span></div>
+        <div><strong>Username:</strong> <span id="profileUsername">-</span></div>
+        <div><strong>Role:</strong> <span id="profileRole">-</span></div>
+        <div><strong>Date of Joining:</strong> <span id="profileJoining">-</span></div>
+        <div><strong>Age:</strong> <span id="profileAge">-</span></div>
+      </div>
+      <div class="inline-form profile-actions">
+        <button id="togglePasswordPanelBtn" type="button">Change Password</button>
+        <button id="logoutBtn" type="button" class="secondary">Logout</button>
+        <button id="closeProfileDialog" type="button">Close</button>
+      </div>
+      <form id="profilePasswordForm" class="grid-form hidden">
+        <input name="currentPassword" type="password" placeholder="Current Password" required />
+        <input name="newPassword" type="password" placeholder="New Password" required />
+        <input name="confirmPassword" type="password" placeholder="Confirm New Password" required />
+        <button type="submit" id="savePasswordBtn">Save Password</button>
+      </div>
+    </article>
+  </dialog>
+
+  <dialog id="userEditDialog">
+    <article>
+      <h3>Edit Staff Profile (Admin)</h3>
+      <form id="userEditForm" class="grid-form">
+        <input name="fullName" placeholder="Full Name" required />
+        <input name="profileTitle" placeholder="Profile Title" />
+        <input name="username" placeholder="Username" disabled />
+        <input name="joiningDate" type="date" />
+        <input name="age" type="number" min="18" max="99" placeholder="Age" />
+        <select name="role">
+          <option value="receptionist">Receptionist</option>
+          <option value="engineer">Engineer</option>
+          <option value="admin">Admin</option>
+        </select>
+        <input name="newPassword" type="text" placeholder="Reset Password (optional)" />
+        <button type="submit">Save Profile</button>
+      </form>
+      <button id="closeUserEditDialog" type="button" class="secondary">Close</button>
+    </article>
+  </dialog>
+
+  <dialog id="historyDialog">
+    <article>
+      <h3 id="historyTitle">Job History</h3>
+      <ul id="historyList"></ul>
+      <button id="closeHistoryDialog" type="button" class="secondary">Close</button>
+    </article>
+  </dialog>
+
+  <dialog id="forgotPasswordDialog">
+    <article>
+      <h3>Reset Password</h3>
+      <form id="forgotPasswordForm" class="grid-form">
+        <input name="username" placeholder="Username" required />
+        <input name="newPassword" type="password" placeholder="New Password" required />
+        <input name="confirmPassword" type="password" placeholder="Confirm New Password" required />
+        <button type="submit">Save New Password</button>
+      </form>
+      <button id="closeForgotPasswordDialog" type="button" class="secondary">Close</button>
+    </article>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
